@@ -83,3 +83,56 @@ export async function createInvoice(prevState: any, formData: FormData) {
 
   return redirect('/dashboard/invoices')
 }
+
+export async function editInvoice(prevState: any, formData: FormData) {
+  await requireUser()
+
+  const headerList = await headers()
+  const currentUrl = headerList.get('x-current-url')
+
+  const submission = parseWithZod(formData, {
+    schema: invoiceSchema,
+  })
+
+  if (submission.status !== 'success') return submission.reply()
+
+  const invoice = await prisma.invoice.update({
+    where: {
+      id: formData.get('id') as string,
+    },
+    data: {
+      ...submission.value,
+    },
+  })
+
+  const sender = {
+    email: 'invoice@adebagas.my.id',
+    name: invoice.fromName,
+  }
+
+  const dueDate = invoice.date
+  dueDate.setDate(dueDate.getDate() + invoice.dueDate)
+
+  emailClient.send({
+    from: sender,
+    to: [
+      {
+        email: submission.value.clientEmail,
+        name: submission.value.clientName,
+      },
+    ],
+    template_uuid: '75984d64-90aa-4c68-95ff-17cb524244a6',
+    template_variables: {
+      clientName: invoice.clientName,
+      invoiceNumber: invoice.id,
+      dueDate: new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'long',
+      }).format(dueDate),
+      totalAmount: formatCurrency(invoice.total, invoice.currency),
+      invoiceLink: `${currentUrl}/api/invoice/${invoice.id}`,
+    },
+    category: 'Invoice test',
+  })
+
+  return redirect('/dashboard/invoices')
+}
