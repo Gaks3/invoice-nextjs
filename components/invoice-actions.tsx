@@ -1,3 +1,5 @@
+'use client'
+
 import {
   CheckCircleIcon,
   DownloadCloudIcon,
@@ -14,8 +16,25 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 export function InvoiceActions({ id }: { id: string }) {
+  const handleSendReminder = () => {
+    toast.promise(
+      fetch(`/api/email/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+      {
+        loading: 'Sending reminder email...',
+        success: 'Reminder email sent successfully',
+        error: 'Failed to send reminder email',
+      }
+    )
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -42,11 +61,9 @@ export function InvoiceActions({ id }: { id: string }) {
             Download Invoice
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={''}>
-            <MailIcon className='size-4 mr-2' />
-            Reminder Email
-          </Link>
+        <DropdownMenuItem onClick={handleSendReminder}>
+          <MailIcon className='size-4 mr-2' />
+          Reminder Email
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={''} className='text-destructive'>
