@@ -15,13 +15,32 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { signOut } from '@/lib/auth'
+import prisma from '@/lib/db'
+import { redirect } from 'next/navigation'
+
+async function getUser(userId: string) {
+  const data = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      address: true,
+    },
+  })
+
+  if (!data?.firstName || !data.lastName || !data.address)
+    return redirect('/onboarding')
+}
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  await requireUser()
+  const session = await requireUser()
+  await getUser(session.user!.id!)
 
   const handleSignOut = async () => {
     'use server'
