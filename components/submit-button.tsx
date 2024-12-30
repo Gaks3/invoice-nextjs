@@ -4,7 +4,11 @@ import { useFormStatus } from 'react-dom'
 import { Button } from './ui/button'
 import { Loader2Icon } from 'lucide-react'
 
-export default function SubmitButton() {
+interface SubmitButtonProps {
+  text?: string
+}
+
+export default function SubmitButton({ text = 'Submit' }: SubmitButtonProps) {
   const { pending } = useFormStatus()
 
   return (
@@ -14,7 +18,7 @@ export default function SubmitButton() {
           <Loader2Icon className='size-4 mr-2 animate-spin' /> Please wait...
         </>
       ) : (
-        'Submit'
+        text
       )}
     </Button>
   )
