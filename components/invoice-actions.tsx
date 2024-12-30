@@ -43,12 +43,13 @@ export function InvoiceActions({ id }: { id: string }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
-        <DropdownMenuItem asChild>
-          <Link href={''}>
-            <CheckCircleIcon className='size-4 mr-2' />
-            Mark as Paid
-          </Link>
-        </DropdownMenuItem>
+        {status !== 'PAID' && (
+          <DropdownMenuItem asChild>
+            <Link href={`/dashboard/invoices/${id}/paid`}>
+              <CheckCircleIcon className='size-4 mr-2' /> Mark as Paid
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild>
           <Link href={`/dashboard/invoices/${id}`}>
             <PencilIcon className='size-4 mr-2' />
