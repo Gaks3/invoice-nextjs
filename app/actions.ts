@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
 
 import prisma from '@/lib/db'
 import { requireUser } from '@/lib/hooks'
-import { onboardingSchema } from '@/lib/zod-schemas'
+import { emailClient } from '@/lib/mailtrap'
+import { formatCurrency } from '@/lib/utils'
+import { invoiceSchema, onboardingSchema } from '@/lib/zod-schemas'
 import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function onboardUser(prevState: any, formData: FormData) {
   const session = await requireUser()
 
@@ -28,4 +30,52 @@ export async function onboardUser(prevState: any, formData: FormData) {
   })
 
   return redirect('/dashboard')
+}
+
+export async function createInvoice(prevState: any, formData: FormData) {
+  const session = await requireUser()
+
+  const submission = parseWithZod(formData, {
+    schema: invoiceSchema,
+  })
+
+  if (submission.status !== 'success') return submission.reply()
+
+  const invoice = await prisma.invoice.create({
+    data: {
+      ...submission.value,
+      userId: session.user.id,
+    },
+  })
+
+  const sender = {
+    email: 'invoice@adebagas.my.id',
+    name: submission.value.fromName,
+  }
+
+  const dueDate = invoice.date
+  dueDate.setDate(dueDate.getDate() + invoice.dueDate)
+
+  emailClient.send({
+    from: sender,
+    to: [
+      {
+        email: submission.value.clientEmail,
+        name: submission.value.clientName,
+      },
+    ],
+    template_uuid: '75984d64-90aa-4c68-95ff-17cb524244a6',
+    template_variables: {
+      clientName: invoice.clientName,
+      invoiceNumber: invoice.id,
+      dueDate: new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'long',
+      }).format(dueDate),
+      totalAmount: formatCurrency(invoice.total, invoice.currency),
+      invoiceLink: 'Test_InvoiceLink',
+    },
+    category: 'Invoice test',
+  })
+
+  return redirect('/dashboard/invoices')
 }
