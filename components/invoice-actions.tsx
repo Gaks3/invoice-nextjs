@@ -37,7 +37,7 @@ export function InvoiceActions({ id }: { id: string }) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={''}>
+          <Link href={`/api/invoice/${id}`}>
             <DownloadCloudIcon className='size-4 mr-2' />
             Download Invoice
           </Link>
