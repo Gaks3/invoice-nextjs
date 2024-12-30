@@ -66,7 +66,10 @@ export function InvoiceActions({ id }: { id: string }) {
           Reminder Email
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={''} className='text-destructive'>
+          <Link
+            href={`/dashboard/invoices/${id}/delete`}
+            className='text-destructive hover:text-destructive focus:text-destructive'
+          >
             <TrashIcon className='size-4 mr-2' />
             Delete Invoice
           </Link>
