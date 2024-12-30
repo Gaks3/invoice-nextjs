@@ -7,6 +7,7 @@ import { emailClient } from '@/lib/mailtrap'
 import { formatCurrency } from '@/lib/utils'
 import { invoiceSchema, onboardingSchema } from '@/lib/zod-schemas'
 import { parseWithZod } from '@conform-to/zod'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export async function onboardUser(prevState: any, formData: FormData) {
@@ -34,6 +35,9 @@ export async function onboardUser(prevState: any, formData: FormData) {
 
 export async function createInvoice(prevState: any, formData: FormData) {
   const session = await requireUser()
+
+  const headerList = await headers()
+  const currentUrl = headerList.get('x-current-url')
 
   const submission = parseWithZod(formData, {
     schema: invoiceSchema,
@@ -72,7 +76,7 @@ export async function createInvoice(prevState: any, formData: FormData) {
         dateStyle: 'long',
       }).format(dueDate),
       totalAmount: formatCurrency(invoice.total, invoice.currency),
-      invoiceLink: 'Test_InvoiceLink',
+      invoiceLink: `${currentUrl}/api/invoice/${invoice.id}`,
     },
     category: 'Invoice test',
   })
