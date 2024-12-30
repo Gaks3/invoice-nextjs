@@ -15,7 +15,7 @@ import {
 } from './ui/dropdown-menu'
 import Link from 'next/link'
 
-export function InvoiceActions() {
+export function InvoiceActions({ id }: { id: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,7 +31,7 @@ export function InvoiceActions() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={''}>
+          <Link href={`/dashboard/invoices/${id}`}>
             <PencilIcon className='size-4 mr-2' />
             Edit Invoice
           </Link>
