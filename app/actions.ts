@@ -121,7 +121,7 @@ export async function editInvoice(prevState: any, formData: FormData) {
         name: submission.value.clientName,
       },
     ],
-    template_uuid: '75984d64-90aa-4c68-95ff-17cb524244a6',
+    template_uuid: '806c823d-79fc-4065-925b-d011391f921c',
     template_variables: {
       clientName: invoice.clientName,
       invoiceNumber: invoice.id,
